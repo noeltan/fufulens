@@ -773,9 +773,10 @@ function logConnectHint(error: string): void {
     log('→ Another program has claimed the camera. Close Fujifilm apps (X RAW Studio,')
     log('  X Acquire), photo apps (Photos, Image Capture, Lightroom), and any other')
     log('  tab of this app, then unplug/replug the camera and retry.')
-    log('→ On macOS the culprit is usually the ptpcamerad daemon. In Terminal run:')
-    log('      sudo killall -9 ptpcamerad')
-    log('  then click Connect again within a few seconds (it respawns on replug).')
+    log('→ On macOS the culprit is usually the ptpcamerad daemon, which respawns')
+    log('  almost instantly — outrace it with a kill loop. In Terminal run:')
+    log('      while true; do killall -9 ptpcamerad mscamerad-xpc 2>/dev/null; sleep 0.5; done')
+    log('  then click Connect while the loop runs; Ctrl+C it once connected.')
     log('→ On Linux: eject the camera in your file manager (or kill gvfsd-gphoto2),')
     log('  then retry.')
   } else if (error === 'security') {
