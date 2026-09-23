@@ -668,6 +668,7 @@ function renderCamera(): HTMLElement {
             const result = await camera.connect()
             if (!result.ok) {
               log(`Connection failed: ${result.error}`)
+              logConnectHint(result.error)
               camera = null
             }
           } else {
@@ -764,6 +765,23 @@ function renderCamera(): HTMLElement {
     syncBtn,
   )
   return container
+}
+
+/** Actionable guidance for the common connection failures, written into the log */
+function logConnectHint(error: string): void {
+  if (error === 'interface-busy') {
+    log('→ Another program has claimed the camera. Close Fujifilm apps (X RAW Studio,')
+    log('  X Acquire), photo apps (Photos, Image Capture, Lightroom), and any other')
+    log('  tab of this app, then unplug/replug the camera and retry.')
+    log('→ On macOS the culprit is usually the ptpcamerad daemon, which respawns')
+    log('  almost instantly — outrace it with a kill loop. In Terminal run:')
+    log('      while true; do killall -9 ptpcamerad mscamerad-xpc 2>/dev/null; sleep 0.5; done')
+    log('  then click Connect while the loop runs; Ctrl+C it once connected.')
+    log('→ On Linux: eject the camera in your file manager (or kill gvfsd-gphoto2),')
+    log('  then retry.')
+  } else if (error === 'security') {
+    log('→ WebUSB needs a secure context: use this app over HTTPS (or localhost).')
+  }
 }
 
 function slotRow(assigned: Recipe | null, index: number): HTMLElement {
